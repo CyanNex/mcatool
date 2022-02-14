@@ -54,7 +54,6 @@ dependencies = [
  "indexmap",
  "lazy_static",
  "os_str_bytes",
- "strsim",
  "termcolor",
  "textwrap",
 ]
@@ -131,7 +130,7 @@ dependencies = [
 
 [[package]]
 name = "mcatool"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "clap",
  "flate2",
@@ -167,12 +166,6 @@ name = "pkg-config"
 version = "0.3.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "58893f751c9b0412871a09abd62ecd2a00298c6c83befa223ef98c52aef40cbe"
-
-[[package]]
-name = "strsim"
-version = "0.10.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "73473c0e59e6d5812c5dfe2a064a6444949f089e20eec9a2e5506596494e4623"
 
 [[package]]
 name = "termcolor"

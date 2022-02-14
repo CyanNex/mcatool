@@ -5,6 +5,8 @@ use std::io::ErrorKind::{Other, UnexpectedEof};
 
 use flate2::read::ZlibDecoder;
 
+use crate::binutil::{parse_u24, parse_u32};
+
 /// A Blob is a simple type for a Vector containing bytes
 pub type Blob = Vec<u8>;
 
@@ -35,9 +37,8 @@ impl AnvilReader {
     pub fn from_file(file: &File) -> Result<AnvilReader, io::Error> {
         // read the file length from the file metadata
         let file_length = file.metadata()?.len() as usize;
-        // create a new reader to read the file
-        let mut file_reader = BufReader::new(file);
 
+        let mut file_reader = BufReader::new(file);
         // create a buffer for storing the file contents
         let mut data_buffer = Vec::with_capacity(file_length);
         // read the file into the buffer
@@ -49,7 +50,6 @@ impl AnvilReader {
             return Err(Error::new(Other, "File length does not match read length"));
         }
 
-        // return a new AnvilReader created from the buffer
         return Self::from_blob(data_buffer);
     }
 
@@ -61,7 +61,6 @@ impl AnvilReader {
             return Err(Error::new(Other, "Anvil data must be at least 8192 bytes"));
         }
 
-        // return a new AnvilReader created from the blob
         return Ok(AnvilReader { data_buffer: blob });
     }
 
@@ -70,26 +69,25 @@ impl AnvilReader {
     /// of this region, instead the value will be wrapped to always be inside the bounds.
     /// It's recommended to first validate that the given coordinates are within the
     /// bounds of the region.
-    /// This function will return a deflated binary Blob in NBT format.
+    /// This function will return a decompressed binary Blob in NBT format.
     pub fn read_chunk(&self, chunk_x: u32, chunk_z: u32) -> Result<Blob, io::Error> {
         // calculate the chunk index from the coordinates
         let chunk_idx = (chunk_x & 31) | ((chunk_z & 31) << 5);
-        // read the chunk header at this index
+
         let header = &self.read_header(chunk_idx);
 
         // get the offset and length of the chunk data from the header
         let offset = (header.data_offset * 4096) as usize;
-        let length = read_u32(&self.data_buffer[offset..offset + 4]) as usize;
+        let length = parse_u32(&self.data_buffer[offset..offset + 4]) as usize;
 
         // get the raw chunk data from the buffer
         let chunk_data_start = offset + 5;
         let chunk_data_end = chunk_data_start + length;
         let raw_chunk_data = &self.data_buffer[chunk_data_start..chunk_data_end];
 
-        // deflate (decompress) the chunk data
-        let chunk_data = zlib_deflate(raw_chunk_data)?;
+        // decompressed (decompress) the chunk data
+        let chunk_data = zlib_decompress(raw_chunk_data)?;
 
-        // return the chunk data
         return Ok(chunk_data);
     }
 
@@ -99,15 +97,13 @@ impl AnvilReader {
         // get the raw chunk header (4 bytes) from the buffer
         let raw_chunk_header = &self.data_buffer[offset..offset + 4];
 
-        // return the chunk header
         return ChunkHeader {
-            data_offset: read_u24(raw_chunk_header)
+            data_offset: parse_u24(raw_chunk_header)
         };
     }
 }
 
-fn zlib_deflate(blob: &[u8]) -> Result<Blob, io::Error> {
-    // create a new zlib decoder for the blob
+fn zlib_decompress(blob: &[u8]) -> Result<Blob, io::Error> {
     let mut zlib_decoder = ZlibDecoder::new(blob);
     // create a buffer for storing the decoded result
     let mut result_buffer = Vec::new();
@@ -122,19 +118,4 @@ fn zlib_deflate(blob: &[u8]) -> Result<Blob, io::Error> {
     } else {
         Err(Error::new(UnexpectedEof, "Zlib returned 0 bytes"))
     };
-}
-
-/// read a 24-bit big-endian value from a buffer
-fn read_u24(array: &[u8]) -> u32 {
-    return ((array[0] as u32) << 16)
-        | ((array[1] as u32) << 8)
-        | ((array[2] as u32) << 0);
-}
-
-/// read a 32-bit big-endian value from a buffer
-fn read_u32(array: &[u8]) -> u32 {
-    return ((array[0] as u32) << 24)
-        | ((array[1] as u32) << 16)
-        | ((array[2] as u32) << 8)
-        | ((array[3] as u32) << 0);
 }

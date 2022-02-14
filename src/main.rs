@@ -6,6 +6,9 @@ use clap::{app_from_crate, arg};
 use crate::anvil::AnvilReader;
 
 mod anvil;
+mod nbt;
+mod binutil;
+
 
 fn main() {
     let matches = app_from_crate!()
