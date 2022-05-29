@@ -1,3 +1,4 @@
+use std::any::Any;
 use std::fmt;
 use std::fmt::{Display, Formatter};
 use std::io::Read;
@@ -9,7 +10,7 @@ use crate::nbt::{BoxedTag, NbtTag, read_tag, TagHeader};
 /// No two tags may have the same name.
 pub struct NbtTagCompound {
     name: String,
-    children: Vec<BoxedTag>,
+    pub children: Vec<BoxedTag>,
 }
 
 impl NbtTag for NbtTagCompound {
@@ -46,6 +47,10 @@ impl NbtTag for NbtTagCompound {
     fn name(&self) -> &str {
         &self.name
     }
+
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
 }
 
 impl Display for NbtTagCompound {
@@ -70,6 +75,10 @@ impl NbtTag for NbtTagEnd {
 
     fn name(&self) -> &str {
         ""
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        self
     }
 }
 

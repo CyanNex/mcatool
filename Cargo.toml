@@ -6,6 +6,12 @@ repository = "https://hogwarts.bits.team/git/Bits/mcatool"
 authors = ["Nex"]
 edition = "2021"
 
+[profile.release]
+opt-level = 3
+strip = "symbols"
+panic = "abort"
+#debug = true
+
 [dependencies]
 clap = { version = "3.0.14", features = ["cargo", "std", "color"], default-features = false }
-flate2 = { version = "1.0.22", features = ["zlib"], default-features = false }
+flate2 = { version = "1.0.22", features = ["rust_backend"], default-features = false }

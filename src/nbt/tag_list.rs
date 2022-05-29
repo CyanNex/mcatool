@@ -1,3 +1,4 @@
+use std::any::Any;
 use std::fmt;
 use std::fmt::{Display, Formatter};
 use std::io::Read;
@@ -51,6 +52,10 @@ impl NbtTag for NbtTagList {
 
     fn name(&self) -> &str {
         &self.name
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        self
     }
 }
 

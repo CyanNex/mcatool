@@ -1,4 +1,5 @@
 use std::io::Read;
+use crate::anvil::Blob;
 
 /// Parse a 16-bit big-endian value from a byte array
 pub fn parse_u16(array: &[u8]) -> u16 {
@@ -88,4 +89,26 @@ pub fn buf_read_f64(buffer: &mut dyn Read) -> f64 {
     let mut value: [u8; 8] = [0; 8];
     buffer.read_exact(&mut value).expect("expected 8 bytes");
     return parse_f64(&value) as f64;
+}
+
+pub fn buf_write_u8(buffer: &mut [u8], value: u8) {
+    buffer[0] = value as u8;
+}
+
+pub fn buf_write_u16(buffer: &mut [u8], value: u16) {
+    buffer[0] = ((value >> 8) & 0xFF) as u8;
+    buffer[1] = ((value >> 0) & 0xFF) as u8;
+}
+
+pub fn buf_write_u24(buffer: &mut [u8], value: u32) {
+    buffer[0] = ((value >> 16) & 0xFF) as u8;
+    buffer[1] = ((value >> 8) & 0xFF) as u8;
+    buffer[2] = ((value >> 0) & 0xFF) as u8;
+}
+
+pub fn buf_write_u32(buffer: &mut [u8], value: u32) {
+    buffer[0] = ((value >> 24) & 0xFF) as u8;
+    buffer[1] = ((value >> 16) & 0xFF) as u8;
+    buffer[2] = ((value >> 8) & 0xFF) as u8;
+    buffer[3] = ((value >> 0) & 0xFF) as u8;
 }

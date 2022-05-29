@@ -2,6 +2,7 @@
 /// https://minecraft.fandom.com/wiki/NBT_format#NBT_file
 
 use std::{fmt, io};
+use std::any::Any;
 use std::io::{Error, Read};
 use std::io::ErrorKind::Other;
 
@@ -30,6 +31,8 @@ pub trait NbtTag: fmt::Display {
     fn tag_type(&self) -> u8;
     /// Returns the name of this tag. May be empty
     fn name(&self) -> &str;
+
+    fn as_any(&self) -> &dyn Any;
 }
 
 /// The header of any tag in the binary format. Contains a

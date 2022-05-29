@@ -1,3 +1,4 @@
+use std::any::Any;
 /// Array tags are arrays of primitive values.
 
 use std::fmt;
@@ -39,6 +40,10 @@ impl NbtTag for NbtTagByteArray {
     fn name(&self) -> &str {
         &self.name
     }
+
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
 }
 
 impl Display for NbtTagByteArray {
@@ -78,6 +83,10 @@ impl NbtTag for NbtTagIntArray {
     fn name(&self) -> &str {
         &self.name
     }
+
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
 }
 
 impl Display for NbtTagIntArray {
@@ -116,6 +125,10 @@ impl NbtTag for NbtTagLongArray {
 
     fn name(&self) -> &str {
         &self.name
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        self
     }
 }
 

@@ -1,3 +1,4 @@
+use std::any::Any;
 /// Number tags are numeric primitive values
 
 use std::fmt;
@@ -32,6 +33,10 @@ impl NbtTag for NbtTagByte {
     fn name(&self) -> &str {
         &self.name
     }
+
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
 }
 
 impl Display for NbtTagByte {
@@ -64,6 +69,10 @@ impl NbtTag for NbtTagShort {
     fn name(&self) -> &str {
         &self.name
     }
+
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
 }
 
 impl Display for NbtTagShort {
@@ -74,7 +83,7 @@ impl Display for NbtTagShort {
 
 pub struct NbtTagInt {
     name: String,
-    value: i32,
+    pub value: i32,
 }
 
 impl NbtTag for NbtTagInt {
@@ -96,6 +105,10 @@ impl NbtTag for NbtTagInt {
     fn name(&self) -> &str {
         &self.name
     }
+
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
 }
 
 impl Display for NbtTagInt {
@@ -106,7 +119,7 @@ impl Display for NbtTagInt {
 
 pub struct NbtTagLong {
     name: String,
-    value: i64,
+    pub value: i64,
 }
 
 impl NbtTag for NbtTagLong {
@@ -127,6 +140,10 @@ impl NbtTag for NbtTagLong {
 
     fn name(&self) -> &str {
         &self.name
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        self
     }
 }
 
@@ -160,6 +177,10 @@ impl NbtTag for NbtTagFloat {
     fn name(&self) -> &str {
         &self.name
     }
+
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
 }
 
 impl Display for NbtTagFloat {
@@ -191,6 +212,10 @@ impl NbtTag for NbtTagDouble {
 
     fn name(&self) -> &str {
         &self.name
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        self
     }
 }
 
