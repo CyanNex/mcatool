@@ -6,6 +6,7 @@ pub enum Error {
     IoError(io::Error),
     FsError(fs_extra::error::Error),
     AnvilParseError(&'static str),
+    ChunkReadError(String),
     AnvilWriteError(&'static str),
     ChunkNotFoundError,
 }

@@ -7,7 +7,7 @@ use flate2::read::ZlibDecoder;
 
 use crate::binutil::{buf_write_u24, buf_write_u32, buf_write_u8, parse_u24, parse_u32};
 use crate::error::Error;
-use crate::error::Error::{AnvilParseError, AnvilWriteError, ChunkNotFoundError};
+use crate::error::Error::{AnvilParseError, AnvilWriteError, ChunkNotFoundError, ChunkReadError};
 
 /// A Blob is a simple type for a Vector containing bytes
 pub type Blob = Vec<u8>;
@@ -89,24 +89,27 @@ impl AnvilData {
         if header.data_offset > 0 || header.sector_count > 0 {
             // get the offset and length of the chunk data from the header
             let offset = (header.data_offset << 12) as usize;
+            if offset + 4 >= self.data_buffer.len() {
+                return Err(ChunkReadError(
+                    format!("Chunk ({}, {}) should be at {:#08X} but region is only {:#08X} bytes",
+                            chunk_x, chunk_z, offset, self.data_buffer.len())
+                ));
+            }
             let length = parse_u32(&self.data_buffer[offset..offset + 4]) as usize;
 
             // get the raw chunk data from the buffer
             let chunk_data_start = offset + 5;
             let mut chunk_data_end = chunk_data_start + length;
-            if chunk_data_start >= self.data_buffer.len() {
-                panic!("Chunk at {}, {} should start at {} but region is only {} bytes",
-                       chunk_x, chunk_z, chunk_data_start, self.data_buffer.len());
-            }
             if chunk_data_end >= self.data_buffer.len() {
-                // panic!("Chunk at {}, {} should end at {} but region is only {} bytes",
-                //        chunk_x, chunk_z, chunk_data_end, self.data_buffer.len());
                 chunk_data_end -= 1;
             }
+            if chunk_data_end > self.data_buffer.len() {
+                return Err(ChunkReadError(
+                    format!("Chunk ({}, {}) should end at {:#08X} but region is only {:#08X} bytes",
+                            chunk_x, chunk_z, offset, self.data_buffer.len())
+                ));
+            }
             let raw_chunk_data = &self.data_buffer[chunk_data_start..chunk_data_end];
-
-            // decompressed (decompress) the chunk data
-            // let chunk_data = zlib_decompress(raw_chunk_data)?;
 
             return Ok(raw_chunk_data.to_vec());
         } else {

@@ -9,7 +9,7 @@ use serde::Deserialize;
 use crate::{anvil, AnvilData};
 use crate::anvil::Blob;
 use crate::error::Error;
-use crate::error::Error::AnvilParseError;
+use crate::error::Error::{AnvilParseError, ChunkReadError};
 
 #[derive(Copy, Clone)]
 pub struct TrimOptions {
@@ -105,14 +105,25 @@ fn trim_region_file(file_path: PathBuf, options: TrimOptions) -> Result<(), Erro
     for x in 0..32 {
         for z in 0..32 {
             let chunk_data = reader.read_chunk(x, z);
+            match chunk_data {
+                Ok(chunk_data) => {
+                    if let Ok(decompressed_data) = anvil::zlib_decompress(&chunk_data) {
+                        let time = get_inhabited_time(&decompressed_data)?;
+                        if time > options.min_inhabited_time {
+                            writer.write_chunk(x, z, &chunk_data, decompressed_data.len() as u32)?;
+                            chunk_count += 1;
+                        }
+                    } else {
+                        eprintln!("[{}]: Chunk ({}, {}) corrupted, dropping chunk!",
+                                  path_to_name(&file_path), x, z);
+                    }
+                }
 
-            if let Ok(chunk_data) = chunk_data {
-                let decompressed_data = anvil::zlib_decompress(&chunk_data)?;
-
-                let time = get_inhabited_time(&decompressed_data)?;
-                if time > options.min_inhabited_time {
-                    writer.write_chunk(x, z, &chunk_data, decompressed_data.len() as u32)?;
-                    chunk_count += 1;
+                Err(error) => {
+                    if let ChunkReadError(error) = error {
+                        eprintln!("[{}]: {}, dropping chunk!",
+                                  path_to_name(&file_path), error);
+                    }
                 }
             }
         }
@@ -167,4 +178,8 @@ struct Level {
 
 fn bytes_to_gb(bytes: u64) -> f64 {
     (bytes as f64) / 1000.0 / 1000.0 / 1000.0
+}
+
+fn path_to_name(path: &PathBuf) -> &str {
+    path.file_name().unwrap().to_str().unwrap()
 }
