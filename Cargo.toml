@@ -5,6 +5,7 @@ description = "A simple command line tool that allows you to easily work with .m
 repository = "https://hogwarts.bits.team/git/Bits/mcatool"
 authors = ["Nex"]
 edition = "2021"
+license = "MIT"
 
 [profile.release]
 opt-level = 3
