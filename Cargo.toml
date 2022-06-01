@@ -2,7 +2,7 @@
 name = "mcatool"
 version = "0.2.1"
 description = "A simple command line tool that allows you to easily work with .mca (Minecraft region) files"
-repository = "https://hogwarts.bits.team/git/Bits/mcatool"
+repository = "https://github.com/CyanNex/mcatool"
 authors = ["Nex"]
 edition = "2021"
 license = "MIT"
