@@ -1,7 +1,7 @@
 [package]
 name = "mcatool"
 version = "0.2.0"
-description = "A simple command line tool that allows you to easily read .mca (Minecraft region) files"
+description = "A simple command line tool that allows you to easily work with .mca (Minecraft region) files"
 repository = "https://hogwarts.bits.team/git/Bits/mcatool"
 authors = ["Nex"]
 edition = "2021"
@@ -10,8 +10,11 @@ edition = "2021"
 opt-level = 3
 strip = "symbols"
 panic = "abort"
-#debug = true
 
 [dependencies]
-clap = { version = "3.0.14", features = ["cargo", "std", "color"], default-features = false }
-flate2 = { version = "1.0.22", features = ["rust_backend"], default-features = false }
+clap = { version = "^3.1", features = ["cargo", "std", "color"], default-features = false }
+flate2 = { version = "^1.0", features = ["rust_backend"], default-features = false }
+fastnbt = { version = "^2.1" }
+serde = { version = "^1.0", features = ["derive"] }
+fs_extra = { version = "^1.2" }
+num_cpus = { version = "^1.13" }

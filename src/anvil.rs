@@ -1,10 +1,9 @@
 use std::fs::File;
 use std::io;
 use std::io::{BufReader, Read, Write};
-use std::io::ErrorKind::{UnexpectedEof};
-use flate2::Compression;
+use std::io::ErrorKind::UnexpectedEof;
 
-use flate2::read::{ZlibDecoder, ZlibEncoder};
+use flate2::read::ZlibDecoder;
 
 use crate::binutil::{buf_write_u24, buf_write_u32, buf_write_u8, parse_u24, parse_u32};
 use crate::error::Error;
@@ -115,12 +114,10 @@ impl AnvilData {
         }
     }
 
-    pub fn write_chunk(&mut self, chunk_x: u32, chunk_z: u32, data: &Blob) -> Result<(), Error> {
+    pub fn write_chunk(&mut self, chunk_x: u32, chunk_z: u32, data: &Blob, uncompressed_size: u32) -> Result<(), Error> {
         // let compressed_data = zlib_compress(data)?;
         // let data_len = compressed_data.len() + 5;
         let data_len = data.len() as u32;
-
-        let uncompressed_size = zlib_decompress(data)?.len() + 1;
 
         // chunk size is limited to 256 sectors of 4KiB
         let sector_count = uncompressed_size >> 12;
@@ -186,20 +183,6 @@ pub fn zlib_decompress(blob: &[u8]) -> Result<Blob, Error> {
 
     // if the decoded returned more than 0 bytes, return the decoded data,
     // otherwise, return an error
-    return if length > 0 {
-        Ok(result_buffer)
-    } else {
-        Err(io::Error::new(UnexpectedEof, "Zlib returned 0 bytes").into())
-    };
-}
-
-pub fn zlib_compress(blob: &[u8]) -> Result<Blob, Error> {
-    let compression = Compression::best();
-    let mut zlib_encoder = ZlibEncoder::new(blob, compression);
-    let mut result_buffer = Vec::new();
-
-    let length = zlib_encoder.read_to_end(&mut result_buffer)?;
-
     return if length > 0 {
         Ok(result_buffer)
     } else {
