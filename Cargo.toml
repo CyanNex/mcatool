@@ -1,11 +1,12 @@
 [package]
 name = "mcatool"
-version = "0.2.1"
+version = "0.2.2"
 description = "A simple command line tool that allows you to easily work with .mca (Minecraft region) files"
 repository = "https://github.com/CyanNex/mcatool"
 authors = ["Nex"]
 edition = "2021"
 license = "MIT"
+readme = "README.md"
 
 [profile.release]
 opt-level = 3
